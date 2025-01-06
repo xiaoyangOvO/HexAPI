@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { useSetTheme, useTheme } from '../context/Theme';
 import { useTranslation } from 'react-i18next';
+import './HeaderBar.css';
 
 import { API, getLogo, getSystemName, isMobile, showSuccess } from '../helpers';
 import '../index.css';
@@ -30,6 +31,7 @@ const HeaderBar = () => {
   const { t, i18n } = useTranslation();
   const [userState, userDispatch] = useContext(UserContext);
   const [styleState, styleDispatch] = useContext(StyleContext);
+  const [isScrolled, setIsScrolled] = useState(false);
   let navigate = useNavigate();
   const [currentLang, setCurrentLang] = useState(i18n.language);
 
@@ -122,166 +124,171 @@ const HeaderBar = () => {
     i18n.changeLanguage(lang);
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setIsScrolled(scrollPosition > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <>
-      <Layout>
-        <div style={{ width: '100%' }}>
-          <Nav
-            className={'topnav'}
-            mode={'horizontal'}
-            renderWrapper={({ itemElement, isSubNav, isInSubNav, props }) => {
-              const routerMap = {
-                about: '/about',
-                login: '/login',
-                register: '/register',
-                pricing: '/pricing',
-                detail: '/detail',
-                home: '/',
-                chat: '/chat',
-              };
-              return (
-                <div onClick={(e) => {
-                  if (props.itemKey === 'home') {
-                    styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
-                    styleDispatch({ type: 'SET_SIDER', payload: false });
-                  } else {
-                    styleDispatch({ type: 'SET_INNER_PADDING', payload: true });
-                    if (!styleState.isMobile) {
-                      styleDispatch({ type: 'SET_SIDER', payload: true });
-                    }
-                  }
-                }}>
-                  <Link
-                    className="header-bar-text"
-                    style={{ textDecoration: 'none' }}
-                    to={routerMap[props.itemKey]}
+    <div className={`header-container ${isScrolled ? 'scrolled' : ''}`}>
+      <Nav
+        className={'topnav glass-effect'}
+        mode={'horizontal'}
+        renderWrapper={({ itemElement, isSubNav, isInSubNav, props }) => {
+          const routerMap = {
+            about: '/about',
+            login: '/login',
+            register: '/register',
+            pricing: '/pricing',
+            detail: '/detail',
+            home: '/',
+            chat: '/chat',
+          };
+          return (
+            <div onClick={(e) => {
+              if (props.itemKey === 'home') {
+                styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
+                styleDispatch({ type: 'SET_SIDER', payload: false });
+              } else {
+                styleDispatch({ type: 'SET_INNER_PADDING', payload: true });
+                if (!styleState.isMobile) {
+                  styleDispatch({ type: 'SET_SIDER', payload: true });
+                }
+              }
+            }}>
+              <Link
+                className="header-bar-text"
+                style={{ textDecoration: 'none' }}
+                to={routerMap[props.itemKey]}
+              >
+                {itemElement}
+              </Link>
+            </div>
+          );
+        }}
+        selectedKeys={[]}
+        onSelect={(key) => {}}
+        header={styleState.isMobile ? {
+          logo: (
+            <div className="mobile-header-controls">
+              {
+                !styleState.showSider ?
+                  <Button className="nav-button glass-button" icon={<IconMenu />} theme="light" aria-label={t('展开侧边栏')} onClick={
+                    () => styleDispatch({ type: 'SET_SIDER', payload: true })
+                  } /> :
+                  <Button className="nav-button glass-button" icon={<IconIndentLeft />} theme="light" aria-label={t('闭侧边栏')} onClick={
+                    () => styleDispatch({ type: 'SET_SIDER', payload: false })
+                  } />
+              }
+            </div>
+          ),
+        } : {
+          logo: (
+            <div className="logo-container">
+              <img src={logo} alt='logo' className="nav-logo" />
+            </div>
+          ),
+          text: <span className="system-name">{systemName}</span>,
+        }}
+        items={buttons}
+        footer={
+          <>
+            {isNewYear && (
+              <Dropdown
+                position='bottomRight'
+                render={
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={handleNewYearClick}>
+                      Happy New Year!!!
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                }
+              >
+                <Nav.Item itemKey={'new-year'} text={'🎉'} />
+              </Dropdown>
+            )}
+            <>
+              <Switch
+                checkedText='🌞'
+                size={styleState.isMobile ? 'default' : 'large'}
+                checked={theme === 'dark'}
+                uncheckedText='🌙'
+                onChange={(checked) => {
+                  setTheme(checked);
+                }}
+              />
+            </>
+            <Dropdown
+              position='bottomRight'
+              render={
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    onClick={() => handleLanguageChange('zh')}
+                    type={currentLang === 'zh' ? 'primary' : 'tertiary'}
                   >
-                    {itemElement}
-                  </Link>
-                </div>
-              );
-            }}
-            selectedKeys={[]}
-            // items={headerButtons}
-            onSelect={(key) => {}}
-            header={styleState.isMobile?{
-              logo: (
-                <>
-                  {
-                    !styleState.showSider ?
-                      <Button icon={<IconMenu />} theme="light" aria-label={t('展开侧边栏')} onClick={
-                        () => styleDispatch({ type: 'SET_SIDER', payload: true })
-                      } />:
-                      <Button icon={<IconIndentLeft />} theme="light" aria-label={t('闭侧边栏')} onClick={
-                        () => styleDispatch({ type: 'SET_SIDER', payload: false })
-                      } />
-                  }
-                </>
-              ),
-            }:{
-              logo: (
-                <img src={logo} alt='logo' />
-              ),
-              text: systemName,
-            }}
-            items={buttons}
-            footer={
+                    中文
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => handleLanguageChange('en')}
+                    type={currentLang === 'en' ? 'primary' : 'tertiary'}
+                  >
+                    English
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              }
+            >
+              <Nav.Item
+                itemKey={'language'}
+                icon={<IconLanguage />}
+              />
+            </Dropdown>
+            {userState.user ? (
               <>
-                {isNewYear && (
-                  // happy new year
-                  <Dropdown
-                    position='bottomRight'
-                    render={
-                      <Dropdown.Menu>
-                        <Dropdown.Item onClick={handleNewYearClick}>
-                          Happy New Year!!!
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    }
-                  >
-                    <Nav.Item itemKey={'new-year'} text={'🎉'} />
-                  </Dropdown>
-                )}
-                {/* <Nav.Item itemKey={'about'} icon={<IconHelpCircle />} /> */}
-                <>
-                  <Switch
-                    checkedText='🌞'
-                    size={styleState.isMobile?'default':'large'}
-                    checked={theme === 'dark'}
-                    uncheckedText='🌙'
-                    onChange={(checked) => {
-                      setTheme(checked);
-                    }}
-                  />
-                </>
                 <Dropdown
                   position='bottomRight'
                   render={
                     <Dropdown.Menu>
-                      <Dropdown.Item
-                        onClick={() => handleLanguageChange('zh')}
-                        type={currentLang === 'zh' ? 'primary' : 'tertiary'}
-                      >
-                        中文
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        onClick={() => handleLanguageChange('en')}
-                        type={currentLang === 'en' ? 'primary' : 'tertiary'}
-                      >
-                        English
-                      </Dropdown.Item>
+                      <Dropdown.Item onClick={logout}>{t('退出')}</Dropdown.Item>
                     </Dropdown.Menu>
                   }
                 >
-                  <Nav.Item
-                    itemKey={'language'}
-                    icon={<IconLanguage />}
-                  />
+                  <Avatar
+                    size='small'
+                    color={stringToColor(userState.user.username)}
+                    style={{ margin: 4 }}
+                  >
+                    {userState.user.username[0]}
+                  </Avatar>
+                  {styleState.isMobile ? null : <Text>{userState.user.username}</Text>}
                 </Dropdown>
-                {userState.user ? (
-                  <>
-                    <Dropdown
-                      position='bottomRight'
-                      render={
-                        <Dropdown.Menu>
-                          <Dropdown.Item onClick={logout}>{t('退出')}</Dropdown.Item>
-                        </Dropdown.Menu>
-                      }
-                    >
-                      <Avatar
-                        size='small'
-                        color={stringToColor(userState.user.username)}
-                        style={{ margin: 4 }}
-                      >
-                        {userState.user.username[0]}
-                      </Avatar>
-                      {styleState.isMobile?null:<Text>{userState.user.username}</Text>}
-                    </Dropdown>
-                  </>
-                ) : (
-                  <>
-                    <Nav.Item
-                      itemKey={'login'}
-                      text={!styleState.isMobile?t('登录'):null}
-                      icon={<IconUser />}
-                    />
-                    {
-                      !styleState.isMobile && (
-                        <Nav.Item
-                          itemKey={'register'}
-                          text={t('注册')}
-                          icon={<IconKey />}
-                        />
-                      )
-                    }
-                  </>
-                )}
               </>
-            }
-          ></Nav>
-        </div>
-      </Layout>
-    </>
+            ) : (
+              <>
+                <Nav.Item
+                  itemKey={'login'}
+                  text={!styleState.isMobile ? t('登录') : null}
+                  icon={<IconUser />}
+                />
+                {
+                  !styleState.isMobile && (
+                    <Nav.Item
+                      itemKey={'register'}
+                      text={t('注册')}
+                      icon={<IconKey />}
+                    />
+                  )
+                }
+              </>
+            )}
+          </>
+        }
+      />
+    </div>
   );
 };
 

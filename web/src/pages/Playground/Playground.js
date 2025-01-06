@@ -24,13 +24,75 @@ const roleInfo = {
   }
 }
 
-let id = 4;
-function getId() {
-  return `${id++}`
-}
+// 样式常量
+const styles = {
+  layout: {
+    height: '100%',
+    backgroundColor: 'var(--semi-color-bg-0)',
+  },
+  sider: {
+    backgroundColor: 'transparent',
+    padding: '16px 0',
+  },
+  settingsCard: {
+    border: '1px solid var(--semi-color-border)',
+    borderRadius: '16px',
+    margin: '0 16px',
+    transition: 'all 0.3s',
+  },
+  settingSection: {
+    marginBottom: '24px',
+  },
+  settingLabel: {
+    marginBottom: '8px',
+    fontSize: '14px',
+    fontWeight: 600,
+  },
+  chatContainer: {
+    height: '100%',
+    position: 'relative',
+    padding: '16px',
+  },
+  chatWrapper: {
+    height: '100%',
+    border: '1px solid var(--semi-color-border)',
+    borderRadius: '16px',
+    backgroundColor: 'var(--semi-color-bg-1)',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+  },
+  toggleButton: {
+    position: 'absolute',
+    left: ({ showSettings }) => showSettings ? -10 : -20,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 1000,
+    width: 40,
+    height: 40,
+    borderRadius: '0 20px 20px 0',
+    padding: 0,
+    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.15)',
+  },
+  inputArea: {
+    margin: '8px 16px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderRadius: '16px',
+    padding: '12px',
+    border: '1px solid var(--semi-color-border)',
+    backgroundColor: 'var(--semi-color-bg-2)',
+  }
+};
+
+let messageId = 4;
+const getId = () => `${messageId++}`;
 
 const Playground = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const [userState] = useContext(UserContext);
+  const [styleState] = useContext(StyleContext);
+  const [showSettings, setShowSettings] = useState(!styleState.isMobile);
   
   const defaultMessage = [
     {
@@ -53,15 +115,11 @@ const Playground = () => {
     max_tokens: 0,
     temperature: 0,
   });
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [userState, userDispatch] = useContext(UserContext);
   const [status, setStatus] = useState({});
   const [systemPrompt, setSystemPrompt] = useState('You are a helpful assistant. You can help me by answering my questions. You can also ask me questions.');
   const [message, setMessage] = useState(defaultMessage);
   const [models, setModels] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [showSettings, setShowSettings] = useState(true);
-  const [styleState, styleDispatch] = useContext(StyleContext);
 
   const handleInputChange = (name, value) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -129,12 +187,6 @@ const Playground = () => {
       showError(t(message));
     }
   };
-
-  const commonOuterStyle = {
-    border: '1px solid var(--semi-color-border)',
-    borderRadius: '16px',
-    margin: '0px 8px',
-  }
 
   const getSystemMessage = () => {
     if (systemPrompt !== '') {
@@ -269,23 +321,74 @@ const Playground = () => {
     })
   }, []);
 
+  // 设置面板组件
+  const SettingsPanel = () => {
+    return (
+      <Card style={styles.settingsCard}>
+        <div style={styles.settingSection}>
+          <Typography.Text strong style={styles.settingLabel}>{t('分组')}</Typography.Text>
+          <Select
+            placeholder={t('请选择分组')}
+            value={inputs.group}
+            onChange={(value) => handleInputChange('group', value)}
+            style={{ width: '100%' }}
+            optionList={groups}
+            renderOptionItem={renderGroupOption}
+          />
+        </div>
+
+        <div style={styles.settingSection}>
+          <Typography.Text strong style={styles.settingLabel}>{t('模型')}</Typography.Text>
+          <Select
+            placeholder={t('请选择模型')}
+            value={inputs.model}
+            onChange={(value) => handleInputChange('model', value)}
+            style={{ width: '100%' }}
+            optionList={models}
+            filter
+          />
+        </div>
+
+        <div style={styles.settingSection}>
+          <Typography.Text strong style={styles.settingLabel}>Temperature</Typography.Text>
+          <Slider
+            step={0.1}
+            min={0.1}
+            max={1}
+            value={inputs.temperature}
+            onChange={(value) => handleInputChange('temperature', value)}
+          />
+        </div>
+
+        <div style={styles.settingSection}>
+          <Typography.Text strong style={styles.settingLabel}>MaxTokens</Typography.Text>
+          <Input
+            placeholder='MaxTokens'
+            value={inputs.max_tokens}
+            onChange={(value) => handleInputChange('max_tokens', value)}
+          />
+        </div>
+
+        <div style={styles.settingSection}>
+          <Typography.Text strong style={styles.settingLabel}>System Prompt</Typography.Text>
+          <TextArea
+            placeholder='System Prompt'
+            defaultValue={systemPrompt}
+            onChange={setSystemPrompt}
+            autosize
+          />
+        </div>
+      </Card>
+    );
+  };
+
+  // 设置切换按钮
   const SettingsToggle = () => {
     if (!styleState.isMobile) return null;
     return (
       <Button
         icon={<IconSetting />}
-        style={{
-          position: 'absolute',
-          left: showSettings ? -10 : -20,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 1000,
-          width: 40,
-          height: 40,
-          borderRadius: '0 20px 20px 0',
-          padding: 0,
-          boxShadow: '2px 0 8px rgba(0, 0, 0, 0.15)',
-        }}
+        style={styles.toggleButton({ showSettings })}
         onClick={() => setShowSettings(!showSettings)}
         theme="solid"
         type="primary"
@@ -293,128 +396,40 @@ const Playground = () => {
     );
   };
 
-  function CustomInputRender(props) {
-    const { detailProps } = props;
-    const { clearContextNode, uploadNode, inputNode, sendNode, onClick } = detailProps;
-
-    return <div style={{margin: '8px 16px', display: 'flex', flexDirection:'row',
-      alignItems: 'flex-end', borderRadius: 16,padding: 10, border: '1px solid var(--semi-color-border)'}}
-                onClick={onClick}
-    >
-      {/*{uploadNode}*/}
-      {inputNode}
-      {sendNode}
-    </div>
-  }
-
-  const renderInputArea = useCallback((props) => {
-    return (<CustomInputRender {...props} />)
-  }, []);
+  // 自定义输入区域渲染
+  const CustomInputRender = ({ detailProps }) => {
+    const { inputNode, sendNode, onClick } = detailProps;
+    return (
+      <div style={styles.inputArea} onClick={onClick}>
+        {inputNode}
+        {sendNode}
+      </div>
+    );
+  };
 
   return (
-    <Layout style={{height: '100%'}}>
+    <Layout style={styles.layout}>
       {(showSettings || !styleState.isMobile) && (
-        <Layout.Sider style={{ display: styleState.isMobile ? 'block' : 'initial' }}>
-          <Card style={commonOuterStyle}>
-            <div style={{ marginTop: 10 }}>
-              <Typography.Text strong>{t('分组')}：</Typography.Text>
-            </div>
-            <Select
-              placeholder={t('请选择分组')}
-              name='group'
-              required
-              selection
-              onChange={(value) => {
-                handleInputChange('group', value);
-              }}
-              value={inputs.group}
-              autoComplete='new-password'
-              optionList={groups}
-              renderOptionItem={renderGroupOption}
-              style={{ width: '100%' }}
-            />
-            <div style={{ marginTop: 10 }}>
-              <Typography.Text strong>{t('模型')}：</Typography.Text>
-            </div>
-            <Select
-              placeholder={t('请选择模型')}
-              name='model'
-              required
-              selection
-              searchPosition='dropdown'
-              filter
-              onChange={(value) => {
-                handleInputChange('model', value);
-              }}
-              value={inputs.model}
-              autoComplete='new-password'
-              optionList={models}
-            />
-            <div style={{ marginTop: 10 }}>
-              <Typography.Text strong>Temperature：</Typography.Text>
-            </div>
-            <Slider
-              step={0.1}
-              min={0.1}
-              max={1}
-              value={inputs.temperature}
-              onChange={(value) => {
-                handleInputChange('temperature', value);
-              }}
-            />
-            <div style={{ marginTop: 10 }}>
-              <Typography.Text strong>MaxTokens：</Typography.Text>
-            </div>
-            <Input
-              placeholder='MaxTokens'
-              name='max_tokens'
-              required
-              autoComplete='new-password'
-              defaultValue={0}
-              value={inputs.max_tokens}
-              onChange={(value) => {
-                handleInputChange('max_tokens', value);
-              }}
-            />
-
-            <div style={{ marginTop: 10 }}>
-              <Typography.Text strong>System：</Typography.Text>
-            </div>
-            <TextArea
-              placeholder='System Prompt'
-              name='system'
-              required
-              autoComplete='new-password'
-              autosize
-              defaultValue={systemPrompt}
-              // value={systemPrompt}
-              onChange={(value) => {
-                setSystemPrompt(value);
-              }}
-            />
-
-          </Card>
+        <Layout.Sider style={styles.sider}>
+          <SettingsPanel />
         </Layout.Sider>
       )}
       <Layout.Content>
-        <div style={{height: '100%', position: 'relative'}}>
+        <div style={styles.chatContainer}>
           <SettingsToggle />
-          <Chat
-            chatBoxRenderConfig={{
-              renderChatBoxAction: () => {
-                return <div></div>
-              }
-            }}
-            renderInputArea={renderInputArea}
-            roleConfig={roleInfo}
-            style={commonOuterStyle}
-            chats={message}
-            onMessageSend={onMessageSend}
-            showClearContext
-            onClear={() => {
-              setMessage([]);
-            }}
-          />
+          <div style={styles.chatWrapper}>
+            <Chat
+              chatBoxRenderConfig={{
+                renderChatBoxAction: () => null
+              }}
+              renderInputArea={useCallback((props) => <CustomInputRender {...props} />, [])}
+              roleConfig={roleInfo}
+              chats={message}
+              onMessageSend={onMessageSend}
+              showClearContext
+              onClear={() => setMessage([])}
+            />
+          </div>
         </div>
       </Layout.Content>
     </Layout>

@@ -1,0 +1,197 @@
+/* 导航栏容器 */
+.header-container {
+  width: 100%;
+  height: 56px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 内容容器 */
+#root {
+  padding-top: 56px;
+}
+
+/* 毛玻璃效果 */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(10px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
+  height: 100%;
+}
+
+/* 滚动时的样式 */
+.header-container.scrolled .glass-effect {
+  background: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 暗色模式适配 */
+[theme-mode="dark"] .glass-effect {
+  background: rgba(22, 22, 22, 0.75) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[theme-mode="dark"] .header-container.scrolled .glass-effect {
+  background: rgba(22, 22, 22, 0.85) !important;
+}
+
+/* 导航按钮样式 */
+.nav-button.glass-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px !important;
+}
+
+.nav-button.glass-button:hover {
+  background: rgba(var(--semi-color-primary-light-default), 0.1) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--semi-color-primary-light-default), 0.2);
+}
+
+/* Logo 容器 */
+.logo-container {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  height: 100%;
+}
+
+.nav-logo {
+  height: 32px;
+  width: auto;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.nav-logo:hover {
+  transform: scale(1.05);
+}
+
+/* 系统名称样式 */
+.system-name {
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--semi-color-primary), var(--semi-color-secondary, #00BCD4));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 0 12px;
+  letter-spacing: 0.5px;
+}
+
+/* 移动端控制按钮容器 */
+.mobile-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px;
+  height: 100%;
+}
+
+/* 导航项悬停效果 */
+.header-bar-text {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.header-bar-text:hover {
+  color: var(--semi-color-primary);
+}
+
+.header-bar-text::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--semi-color-primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.header-bar-text:hover::after {
+  width: 100%;
+}
+
+/* 用户头像容器样式 */
+.semi-avatar {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+}
+
+.semi-avatar:hover {
+  transform: scale(1.05);
+  border-color: var(--semi-color-primary);
+}
+
+/* 适配移动端 */
+@media (max-width: 768px) {
+  .header-container {
+    height: 48px;
+  }
+  
+  .system-name {
+    font-size: 16px;
+  }
+  
+  .nav-logo {
+    height: 28px;
+  }
+  
+  .mobile-header-controls {
+    gap: 8px;
+  }
+  
+  .nav-button.glass-button {
+    padding: 8px !important;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Semi UI Nav 组件样式覆盖 */
+.semi-navigation-horizontal {
+  height: 100% !important;
+  line-height: normal !important;
+}
+
+.semi-navigation-horizontal .semi-navigation-list {
+  height: 100%;
+}
+
+.semi-navigation-horizontal .semi-navigation-item {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* 移除之前的 body padding */
+body {
+  padding-top: 0 !important;
+} 

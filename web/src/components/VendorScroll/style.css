@@ -1,0 +1,70 @@
+.vendor-scroll-container {
+  width: 95%;
+  overflow: hidden;
+  padding: 4px 0;
+  position: relative;
+  margin-top: -4px;
+}
+
+.vendor-scroll-track {
+  display: flex;
+  animation: scroll 30s linear infinite;
+  gap: 16px;
+}
+
+.vendor-scroll-track:hover {
+  animation-play-state: paused;
+}
+
+.vendor-icon {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+.vendor-icon:hover {
+  transform: translateY(-2px);
+}
+
+.vendor-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1) opacity(0.7);
+  transition: all 0.3s ease;
+}
+
+.vendor-icon:hover img {
+  filter: brightness(0) invert(1);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .vendor-scroll-container {
+    padding: 4px 0;
+    width: 100%;
+  }
+  
+  .vendor-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .vendor-scroll-track {
+    gap: 12px;
+  }
+} 
