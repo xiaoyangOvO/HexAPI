@@ -65,21 +65,24 @@ const PageLayout = () => {
   }, [i18n]);
 
   return (
-    <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header>
         <HeaderBar />
       </Header>
-      <Layout style={{ flex: 1, overflow: 'hidden' }}>
+      <Layout style={{ flex: 1 }}>
         <Sider>
           {styleState.showSider ? <SiderBar /> : null}
         </Sider>
         <Layout>
           <Content
-            style={{ overflowY: 'auto', padding: styleState.shouldInnerPadding? '24px': '0' }}
+            style={{ 
+              padding: styleState.shouldInnerPadding ? '24px' : '0',
+              minHeight: 'calc(100vh - 120px)' // 减去头部和页脚的高度
+            }}
           >
             <App />
           </Content>
-          <Layout.Footer>
+          <Layout.Footer style={{ padding: 0 }}>
             <FooterBar />
           </Layout.Footer>
         </Layout>

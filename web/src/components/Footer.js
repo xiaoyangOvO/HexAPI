@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getFooterHTML, getSystemName } from '../helpers';
 import { Layout, Tooltip } from '@douyinfe/semi-ui';
+import './Footer.css';
 
 const FooterBar = () => {
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ const FooterBar = () => {
   }, []);
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div className="footer-container">
       {footer ? (
         <div
           className='custom-footer'

@@ -1,0 +1,48 @@
+.footer-container {
+  width: 100%;
+  padding: 24px 0;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  position: relative;
+  bottom: 0;
+  left: 0;
+}
+
+.custom-footer {
+  font-size: 14px;
+  color: rgba(var(--semi-grey-5), 0.8);
+  line-height: 1.6;
+}
+
+.custom-footer a {
+  color: var(--semi-color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.custom-footer a:hover {
+  color: var(--semi-color-primary-hover);
+}
+
+/* 暗色模式适配 */
+[theme-mode="dark"] .footer-container {
+  background: rgba(22, 22, 22, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[theme-mode="dark"] .custom-footer {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .footer-container {
+    padding: 16px 0;
+  }
+  
+  .custom-footer {
+    font-size: 12px;
+  }
+} 
